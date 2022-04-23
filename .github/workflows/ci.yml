@@ -33,12 +33,6 @@ jobs:
       - name: Save ${{ matrix.molecule_distro }} image
         run: |
           docker pull geerlingguy/docker-${{ matrix.molecule_distro }}-ansible:latest
-          docker save geerlingguy/docker-${{ matrix.molecule_distro }}-ansible:latest > ~/${{ matrix.molecule_distro }}.tar.gz
-      - name: Cache ${{ matrix.molecule_distro }} image
-        uses: actions/cache@v3
-        with:
-          path: ~/cache/${{ matrix.molecule_distro }}.tar.gz
-          key: docker-${{ matrix.molecule_distro }}
   linter:
     needs: python-deps
     runs-on: ubuntu-20.04
@@ -75,12 +69,6 @@ jobs:
           sudo systemctl stop docker
           echo '{"cgroup-parent":"/actions_job","storage-driver":"vfs"}' | sudo tee /etc/docker/daemon.json
           sudo systemctl start docker
-      - name: Load cached Docker image
-        uses: actions/cache@v3
-        with:
-          path: ~/${{ matrix.molecule_distro }}.tar.gz
-          key: docker-${{ matrix.molecule_distro }}
-      - run: docker load --input ~/${{ matrix.molecule_distro }}.tar.gz
       - name: Test with molecule
         run: |
           pipenv run molecule test --all
