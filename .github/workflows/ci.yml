@@ -67,6 +67,18 @@ jobs:
           sudo systemctl stop docker
           echo '{"cgroup-parent":"/actions_job","storage-driver":"vfs"}' | sudo tee /etc/docker/daemon.json
           sudo systemctl start docker
+          mkdir ~/image-cache
+      - id: image-cache
+        uses: actions/cache@v3
+        with:
+            path: ~/image-cache
+            key: docker-${{ matrix.molecule_distro }}
+      - if: steps.image-cache.outputs.cache-hit != 'true'
+        run: |
+            docker pull geerlingguy/docker-${{ matrix.molecule_distro }}-ansible:latest
+            docker save --output ~/image-cache/${{ matrix.molecule_distro}}.tar geerlingguy/docker-${{ matrix.molecule_distro }}-ansible:latest
+      - if: steps.image-cache.outputs.cache-hit == 'true'
+        run: docker load -i ~/image-cache/${{ matrix.molecule_distro }}.tar
       - name: Test with molecule
         run: |
           pipenv run molecule test --all
