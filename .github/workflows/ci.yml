@@ -13,28 +13,27 @@ env:
   ANSIBLE_COLOR_DEBUG: "bright gray"
 
 jobs:
-  python-deps:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install pipenv
-        run: pipx install pipenv
-      - uses: actions/setup-python@v3
-        with:
-          python-version: '3.9'
-          cache: 'pipenv'
-      - run: pipenv install --deploy
-  docker-deps:
-    runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        molecule_distro: [ubuntu1804, ubuntu2004]
-    steps:
-      - name: Save ${{ matrix.molecule_distro }} image
-        run: |
-          docker pull geerlingguy/docker-${{ matrix.molecule_distro }}-ansible:latest
+  #python-deps:
+  #  runs-on: ubuntu-20.04
+  #  steps:
+  #    - uses: actions/checkout@v3
+  #    - name: Install pipenv
+  #      run: pipx install pipenv
+  #    - uses: actions/setup-python@v3
+  #      with:
+  #        python-version: '3.9'
+  #        cache: 'pipenv'
+  #    - run: pipenv install --deploy
+  #docker-deps:
+  #  runs-on: ubuntu-20.04
+  #  strategy:
+  #    matrix:
+  #      molecule_distro: [ubuntu1804, ubuntu2004]
+  #  steps:
+  #    - name: Save ${{ matrix.molecule_distro }} image
+  #      run: |
+  #        docker pull geerlingguy/docker-${{ matrix.molecule_distro }}-ansible:latest
   linter:
-    needs: python-deps
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -50,7 +49,6 @@ jobs:
           pipenv run molecule lint
 
   molecule:
-    needs: [python-deps, docker-deps]
     runs-on: ubuntu-20.04
     strategy:
       matrix:
