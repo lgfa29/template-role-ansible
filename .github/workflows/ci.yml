@@ -21,7 +21,7 @@ jobs:
         run: pipx install pipenv
       - uses: actions/setup-python@v3
         with:
-          python-version: '3.8'
+          python-version: '3.9'
           cache: 'pipenv'
       - run: pipenv install --deploy
   linter:
@@ -33,7 +33,7 @@ jobs:
         run: pipx install pipenv
       - uses: actions/setup-python@v3
         with:
-          python-version: '3.8'
+          python-version: '3.9'
           cache: 'pipenv'
       - run: pipenv install --deploy
       - name: Run Linters
@@ -52,7 +52,7 @@ jobs:
         run: pipx install pipenv
       - uses: actions/setup-python@v3
         with:
-          python-version: '3.8'
+          python-version: '3.9'
           cache: 'pipenv'
       - run: pipenv install --deploy
       - name: Force GitHub Actions' docker daemon to use vfs.
