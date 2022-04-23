@@ -5,42 +5,52 @@ on:
   push:
   pull_request:
 
+env:
+  PY_COLORS: '1'
+  ANSIBLE_FORCE_COLOR: '1'
+  # Mudar a cor de mensagens de debug para aparecer melhor no fundo
+  # escuro dos logs do GitHub Action.
+  ANSIBLE_COLOR_DEBUG: "bright gray"
+
 jobs:
-  linter:
+  deps:
     runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        python-version: [3.9]
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - name: Install pipenv
+        run: pipx install pipenv
+      - uses: actions/setup-python@v3
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -r requirements.txt
+          cache: 'pipenv'
+      - run: pipenv install --deploy
+  linter:
+    needs: deps
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install pipenv
+        run: pipx install pipenv
+      - uses: actions/setup-python@v3
+        with:
+          cache: 'pipenv'
+      - run: pipenv install --deploy
       - name: Run Linters
         run: |
-          ansible-lint
+          pipenv run molecule lint
 
   molecule:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        python-version: [3.9]
         molecule_distro: [ubuntu1804, ubuntu2004]
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - name: Install pipenv
+        run: pipx install pipenv
+      - uses: actions/setup-python@v3
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -r requirements.txt
+          cache: 'pipenv'
+      - run: pipenv install --deploy
       - name: Force GitHub Actions' docker daemon to use vfs.
         run: |
           sudo systemctl stop docker
@@ -48,11 +58,6 @@ jobs:
           sudo systemctl start docker
       - name: Test with molecule
         run: |
-          molecule test --all
+          pipenv run molecule test --all
         env:
-          PY_COLORS: '1'
-          ANSIBLE_FORCE_COLOR: '1'
-          # Mudar a cor de mensagens de debug para aparecer melhor no fundo
-          # escuro dos logs do GitHub Action.
-          ANSIBLE_COLOR_DEBUG: "bright gray"
           MOLECULE_DISTRO: ${{ matrix.molecule_distro }}
