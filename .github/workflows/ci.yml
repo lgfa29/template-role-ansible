@@ -78,7 +78,7 @@ jobs:
       - name: Load cached Docker image
         uses: actions/cache@v3
         with:
-          path: ~/cache/${{ matrix.molecule_distro }}.tar.gz
+          path: ~/${{ matrix.molecule_distro }}.tar.gz
           key: docker-${{ matrix.molecule_distro }}
       - run: docker load --input ~/${{ matrix.molecule_distro }}.tar.gz
       - name: Test with molecule
