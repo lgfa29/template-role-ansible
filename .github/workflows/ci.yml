@@ -32,6 +32,7 @@ jobs:
     steps:
       - name: Save ${{ matrix.molecule_distro }} image
         run: |
+          docker pull geerlingguy/docker-${{ matrix.molecule_distro }}-ansible:latest
           docker save geerlingguy/docker-${{ matrix.molecule_distro }}-ansible:latest > ~/${{ matrix.molecule_distro }}.tar.gz
       - name: Cache ${{ matrix.molecule_distro }} image
         uses: actions/cache@v3
